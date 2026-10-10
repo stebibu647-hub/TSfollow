@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrowthPulse - Social Media Growth & Analytics SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        dark: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .light-glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(0, 0, 0, 0.08); }
+        .gradient-text { background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-glow { background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(59,130,246,0.05) 50%, transparent 80%); }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-100 antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col justify-between">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <header id="main-header" class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-white">Growth<span class="text-brand-500">Pulse</span></span>
+            </div>
+            
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <a href="#features" onclick="navigateTo('home'); scrollToSection('features');" class="hover:text-brand-400 transition-colors">Features</a>
+                <a href="#how-it-works" onclick="navigateTo('home'); scrollToSection('how-it-works');" class="hover:text-brand-400 transition-colors">How It Works</a>
+                <a href="#pricing" onclick="navigateTo('home'); scrollToSection('pricing');" class="hover:text-brand-400 transition-colors">Pricing</a>
+                <a href="#faq" onclick="navigateTo('home'); scrollToSection('faq');" class="hover:text-brand-400 transition-colors">FAQ</a>
+            </nav>
+
+            <!-- Auth / User Profile Controls -->
+            <div id="nav-auth-buttons" class="flex items-center gap-4">
+                <button onclick="openAuthModal('login')" class="text-sm font-semibold text-slate-300 hover:text-white px-4 py-2 transition-colors">Sign In</button>
+                <button onclick="openAuthModal('register')" class="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all transform hover:-translate-y-0.5">Get Started Free</button>
+            </div>
+            <div id="nav-user-profile" class="hidden items-center gap-3">
+                <button onclick="navigateTo('dashboard')" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-700 transition-all">
+                    <img id="nav-user-avatar" src="https://placehold.co/40x40/22c55e/ffffff?text=U" class="w-7 h-7 rounded-full object-cover" alt="Avatar">
+                    <span id="nav-user-name" class="text-sm font-medium text-slate-200">Account</span>
+                    <span id="nav-user-badge" class="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full font-bold">PRO</span>
+                </button>
+                <button onclick="logout()" class="text-slate-400 hover:text-red-400 p-2 rounded-xl transition-colors" title="Sign Out"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main id="app-content" class="flex-grow">
+        <!-- Views will be dynamically injected here via router -->
+    </main>
+
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-8 relative shadow-2xl border border-slate-700/50">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div id="auth-modal-title" class="text-2xl font-bold text-white mb-2">Welcome Back</div>
+            <p id="auth-modal-subtitle" class="text-sm text-slate-400 mb-6">Enter your credentials to access your dashboard</p>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="auth-name-field" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
+                    <input type="text" id="auth-name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-brand-500 transition-colors" placeholder="Alex Morgan">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email Address</label>
+                    <input type="email" id="auth-email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-brand-500 transition-colors" placeholder="alex@example.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-brand-500 transition-colors" placeholder="••••••••">
+                </div>
+                
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-brand-500 focus:ring-0"> Remember me
+                    </label>
+                    <a href="#" onclick="switchAuthMode('forgot')" class="hover:text-brand-400 transition-colors">Forgot password?</a>
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-brand-500/25 transition-all mt-2">Sign In</button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-slate-400">
+                <span id="auth-switch-text">Don't have an account?</span>
+                <a href="#" id="auth-switch-link" onclick="toggleAuthMode()" class="text-brand-400 font-semibold hover:underline ml-1">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark-900 border-t border-slate-800/80 pt-16 pb-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                            <i class="fa-solid fa-bolt-lightning"></i>
+                        </div>
+                        <span class="text-lg font-extrabold tracking-tight text-white">Growth<span class="text-brand-500">Pulse</span></span>
+                    </div>
+                    <p class="text-slate-400 text-sm max-w-sm">
+                        The ultimate social media growth, analytics, and content management platform designed for creators, brands, and modern agencies.
+                    </p>
+                    <div class="flex items-center gap-3 text-slate-400 text-lg">
+                        <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-white flex items-center justify-center transition-all"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-white flex items-center justify-center transition-all"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-white flex items-center justify-center transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-white flex items-center justify-center transition-all"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Product</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li><a href="#features" onclick="navigateTo('home'); scrollToSection('features');" class="hover:text-brand-400 transition-colors">Features</a></li>
+                        <li><a href="#pricing" onclick="navigateTo('home'); scrollToSection('pricing');" class="hover:text-brand-400 transition-colors">Pricing</a></li>
+                        <li><a href="#" onclick="navigateTo('dashboard')" class="hover:text-brand-400 transition-colors">Dashboard</a></li>
+                        <li><a href="#" onclick="showToast('AI Tools are active inside dashboard!', 'info')" class="hover:text-brand-400 transition-colors">AI Studio</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Resources</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li><a href="#faq" onclick="navigateTo('home'); scrollToSection('faq');" class="hover:text-brand-400 transition-colors">Help Center</a></li>
+                        <li><a href="#" onclick="showToast('API Docs available in dashboard', 'info')" class="hover:text-brand-400 transition-colors">API Reference</a></li>
+                        <li><a href="#" onclick="showToast('Community forum launching soon!', 'info')" class="hover:text-brand-400 transition-colors">Community</a></li>
+                        <li><a href="#" onclick="showToast('Status: All Systems Operational', 'success')" class="hover:text-brand-400 transition-colors">System Status</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Legal</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li><a href="#" onclick="showToast('Privacy Policy viewed', 'info')" class="hover:text-brand-400 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showToast('Terms of Service viewed', 'info')" class="hover:text-brand-400 transition-colors">Terms of Service</a></li>
+                        <li><a href="#" onclick="showToast('Cookie Policy viewed', 'info')" class="hover:text-brand-400 transition-colors">Cookie Policy</a></li>
+                        <li><a href="#" onclick="showToast('Security overview viewed', 'info')" class="hover:text-brand-400 transition-colors">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+                <p>&copy; 2026 GrowthPulse Technologies, Inc. All rights reserved.</p>
+                <p class="mt-4 sm:mt-0">Inspired by UpFollow • Built for Maximum Growth</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- State Management ---
+        let currentUser = JSON.parse(localStorage.getItem('gp_user')) || null;
+        let currentAuthMode = 'login'; // 'login', 'register', 'forgot'
+        let currentDashboardTab = 'overview';
+        let adminUsers = JSON.parse(localStorage.getItem('gp_admin_users')) || [
+            { id: 1, name: 'Alex Morgan', email: 'alex@example.com', plan: 'Pro', status: 'Active', joined: '2026-02-10' },
+            { id: 2, name: 'Sarah Jenkins', email: 'sarah@brand.co', plan: 'Premium', status: 'Active', joined: '2026-03-01' },
+            { id: 3, name: 'David Lee', email: 'david@creator.io', plan: 'Free', status: 'Inactive', joined: '2026-03-05' },
+            { id: 4, name: 'Admin Staff', email: 'admin@growthpulse.io', plan: 'Admin', status: 'Active', joined: '2026-01-01' }
+        ];
+
+        // --- Toast System ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgCol = type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-100 border border-slate-700';
+            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-info';
+            
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl font-medium text-sm transform translate-y-2 opacity-0 transition-all duration-300 ${bgCol}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // --- Router & Navigation ---
+        function navigateTo(view, param = null) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateNavbarState();
+            
+            const content = document.getElementById('app-content');
+            if (view === 'home') {
+                content.innerHTML = renderHomeView();
+                initHomeInteractions();
+            } else if (view === 'dashboard') {
+                if (!currentUser) {
+                    openAuthModal('login');
+                    showToast('Please sign in to access your dashboard', 'error');
+                    return;
+                }
+                content.innerHTML = renderDashboardView();
+                initDashboardInteractions();
+            } else if (view === 'admin') {
+                if (!currentUser || currentUser.email !== 'admin@growthpulse.io') {
+                    showToast('Unauthorized access. Admin credentials required.', 'error');
+                    openAuthModal('login');
+                    document.getElementById('auth-email').value = 'admin@growthpulse.io';
+                    document.getElementById('auth-password').value = 'admin123';
+                    return;
+                }
+                content.innerHTML = renderAdminView();
+                initAdminInteractions();
+            }
+        }
+
+        function updateNavbarState() {
+            const authBtns = document.getElementById('nav-auth-buttons');
+            const userProf = document.getElementById('nav-user-profile');
+            
+            if (currentUser) {
+                authBtns.classList.add('hidden');
+                authBtns.classList.remove('flex');
+                userProf.classList.remove('hidden');
+                userProf.classList.add('flex');
+                document.getElementById('nav-user-name').innerText = currentUser.name.split(' ')[0];
+                document.getElementById('nav-user-badge').innerText = currentUser.plan.toUpperCase();
+                document.getElementById('nav-user-avatar').src = `https://placehold.co/40x40/22c55e/ffffff?text=${currentUser.name.charAt(0)}`;
+            } else {
+                authBtns.classList.remove('hidden');
+                authBtns.classList.add('flex');
+                userProf.classList.add('hidden');
+                userProf.classList.remove('flex');
+            }
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- Auth Modal & Handlers ---
+        function openAuthModal(mode = 'login') {
+            currentAuthMode = mode;
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            updateAuthModalUI();
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function toggleAuthMode() {
+            currentAuthMode = currentAuthMode === 'login' ? 'register' : 'login';
+            updateAuthModalUI();
+        }
+
+        function switchAuthMode(mode) {
+            currentAuthMode = mode;
+            updateAuthModalUI();
+        }
+
+        function updateAuthModalUI() {
+            const title = document.getElementById('auth-modal-title');
+            const subtitle = document.getElementById('auth-modal-subtitle');
+            const nameField = document.getElementById('auth-name-field');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const switchText = document.getElementById('auth-switch-text');
+            const switchLink = document.getElementById('auth-switch-link');
+
+            if (currentAuthMode === 'login') {
+                title.innerText = 'Welcome Back';
+                subtitle.innerText = 'Enter your credentials to access your dashboard';
+                nameField.classList.add('hidden');
+                submitBtn.innerText = 'Sign In';
+                switchText.innerText = "Don't have an account?";
+                switchLink.innerText = 'Sign up';
+                switchLink.setAttribute('onclick', 'toggleAuthMode()');
+            } else if (currentAuthMode === 'register') {
+                title.innerText = 'Create Account';
+                subtitle.innerText = 'Start growing your social media presence in seconds';
+                nameField.classList.remove('hidden');
+                submitBtn.innerText = 'Create Account';
+                switchText.innerText = 'Already have an account?';
+                switchLink.innerText = 'Sign in';
+                switchLink.setAttribute('onclick', 'toggleAuthMode()');
+            } else if (currentAuthMode === 'forgot') {
+                title.innerText = 'Reset Password';
+                subtitle.innerText = "We'll send password reset instructions to your email";
+                nameField.classList.add('hidden');
+                submitBtn.innerText = 'Send Reset Link';
+                switchText.innerText = 'Remembered your password?';
+                switchLink.innerText = 'Sign in';
+                switchLink.setAttribute('onclick', 'switchAuthMode("login")');
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const name = document.getElementById('auth-name').value || email.split('@')[0];
+
+            if (currentAuthMode === 'forgot') {
+                showToast(`Password reset link sent to ${email}`, 'success');
+                closeAuthModal();
+                return;
+            }
+
+            if (email === 'admin@growthpulse.io') {
+                currentUser = { name: 'Admin Staff', email, plan: 'Admin', role: 'admin' };
+            } else {
+                currentUser = { name, email, plan: currentAuthMode === 'register' ? 'Free' : 'Pro', role: 'user' };
+            }
+
+            localStorage.setItem('gp_user', JSON.stringify(currentUser));
+            closeAuthModal();
+            updateNavbarState();
+            showToast(`Welcome back, ${currentUser.name}!`, 'success');
+
+            if (currentUser.role === 'admin') {
+                navigateTo('admin');
+            } else {
+                navigateTo('dashboard');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('gp_user');
+            updateNavbarState();
+            navigateTo('home');
+            showToast('Signed out successfully', 'info');
+        }
+
+        // --- STREAMING_CHUNK: Home View Renderer ---
+        function renderHomeView() {
+            return `
+                <!-- Hero Section -->
+                <section class="relative overflow-hidden pt-20 pb-32 hero-glow">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div class="text-center max-w-3xl mx-auto space-y-6">
+                            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-bold uppercase tracking-wider animate-pulse">
+                                <i class="fa-solid fa-sparkles"></i> AI-Powered Social Growth Platform
+                            </div>
+                            <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                                Supercharge Your <span class="gradient-text">Social Media Presence</span>
+                            </h1>
+                            <p class="text-lg sm:text-xl text-slate-300">
+                                Automate content planning, generate viral AI captions, track real-time analytics, and scale your audience effortlessly across Instagram, TikTok, and YouTube.
+                            </p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                                <button onclick="openAuthModal('register')" class="w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl shadow-brand-500/30 transition-all transform hover:-translate-y-1">
+                                    Get Started Free <i class="fa-solid fa-arrow-right ml-2"></i>
+                                </button>
+                                <button onclick="scrollToSection('dashboard-preview')" class="w-full sm:w-auto glass-panel hover:bg-slate-800 text-slate-200 font-bold px-8 py-4 rounded-2xl transition-all">
+                                    Explore Dashboard
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-500 pt-2"><i class="fa-solid fa-shield-check text-brand-400 mr-1"></i> No credit card required • Free plan available</p>
+                        </div>
+
+                        <!-- Interactive Dashboard Preview -->
+                        <div id="dashboard-preview" class="mt-16 glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-700/60 max-w-5xl mx-auto">
+                            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                                    <span class="text-xs text-slate-400 ml-2 font-mono">dashboard.growthpulse.io/preview</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs bg-slate-900 px-3 py-1.5 rounded-xl text-brand-400 font-semibold">
+                                    <i class="fa-solid fa-circle-dot animate-ping"></i> Live Stats Demo
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">Total Followers</p>
+                                    <div class="flex items-baseline justify-between mt-1">
+                                        <h3 class="text-2xl font-bold text-white">128,450</h3>
+                                        <span class="text-xs text-brand-400 font-bold bg-brand-500/10 px-2 py-0.5 rounded">+14.2%</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">Engagement Rate</p>
+                                    <div class="flex items-baseline justify-between mt-1">
+                                        <h3 class="text-2xl font-bold text-white">8.6%</h3>
+                                        <span class="text-xs text-brand-400 font-bold bg-brand-500/10 px-2 py-0.5 rounded">+2.4%</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">Scheduled Posts</p>
+                                    <div class="flex items-baseline justify-between mt-1">
+                                        <h3 class="text-2xl font-bold text-white">24</h3>
+                                        <span class="text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded">Queued</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">AI Credits</p>
+                                    <div class="flex items-baseline justify-between mt-1">
+                                        <h3 class="text-2xl font-bold text-white">450 / 500</h3>
+                                        <span class="text-xs text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded">Pro</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-900/90 rounded-2xl p-6 border border-slate-800 text-center">
+                                <canvas id="heroChart" class="w-full h-48 max-h-48"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Features Section -->
+                <section id="features" class="py-24 bg-dark-900/50">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-2xl mx-auto mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Everything You Need to <span class="gradient-text">Go Viral</span></h2>
+                            <p class="text-slate-400">Powerful suite of modular tools engineered for content creators, influencers, and brands.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="glass-panel p-8 rounded-3xl hover:border-brand-500/50 transition-all group">
+                                <div class="w-14 h-14 rounded-2xl bg-brand-500/15 text-brand-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3">AI Caption & Hashtag Studio</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Generate engaging captions, hook openers, and targeted trending hashtags tailored for maximum algorithmic reach.</p>
+                            </div>
+                            <div class="glass-panel p-8 rounded-3xl hover:border-brand-500/50 transition-all group">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-chart-line-up"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3">Deep Profile & Audience Analytics</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Monitor engagement rates, follower growth velocity, best posting times, and audience demographics in real-time.</p>
+                            </div>
+                            <div class="glass-panel p-8 rounded-3xl hover:border-brand-500/50 transition-all group">
+                                <div class="w-14 h-14 rounded-2xl bg-purple-500/15 text-purple-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-3">Smart Content Calendar</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Plan, preview, and organize your cross-platform content strategy with our drag-and-drop scheduling board.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- How It Works -->
+                <section id="how-it-works" class="py-24">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-2xl mx-auto mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">How GrowthPulse <span class="gradient-text">Works</span></h2>
+                            <p class="text-slate-400">Get started in under 2 minutes with our streamlined onboarding workflow.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 text-center relative">
+                                <div class="w-12 h-12 rounded-2xl bg-brand-500 text-white font-extrabold flex items-center justify-center mx-auto mb-6 text-xl shadow-lg shadow-brand-500/30">1</div>
+                                <h3 class="text-lg font-bold text-white mb-2">Create Free Account</h3>
+                                <p class="text-slate-400 text-sm">Sign up with your email instantly without credit card commitments.</p>
+                            </div>
+                            <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 text-center relative">
+                                <div class="w-12 h-12 rounded-2xl bg-brand-500 text-white font-extrabold flex items-center justify-center mx-auto mb-6 text-xl shadow-lg shadow-brand-500/30">2</div>
+                                <h3 class="text-lg font-bold text-white mb-2">Connect Profile</h3>
+                                <p class="text-slate-400 text-sm">Link your Instagram, TikTok, or YouTube handle for instant stats analysis.</p>
+                            </div>
+                            <div class="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 text-center relative">
+                                <div class="w-12 h-12 rounded-2xl bg-brand-500 text-white font-extrabold flex items-center justify-center mx-auto mb-6 text-xl shadow-lg shadow-brand-500/30">3</div>
+                                <h3 class="text-lg font-bold text-white mb-2">Grow & Dominate</h3>
+                                <p class="text-slate-400 text-sm">Use AI tools, track analytics, and watch your audience engagement soar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pricing Section -->
+                <section id="pricing" class="py-24 bg-dark-900/50">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-2xl mx-auto mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Simple, Transparent <span class="gradient-text">Pricing</span></h2>
+                            <p class="text-slate-400">Choose the plan that fits your growth ambitions. Upgrade or cancel anytime.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <!-- Free Plan -->
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col justify-between border border-slate-800">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white mb-2">Free Plan</h3>
+                                    <p class="text-slate-400 text-sm mb-6">Essential tools for beginners.</p>
+                                    <div class="text-4xl font-extrabold text-white mb-6">$0<span class="text-sm font-normal text-slate-400"> / month</span></div>
+                                    <ul class="space-y-3 text-sm text-slate-300 mb-8">
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Limited AI Captions</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Basic Dashboard Analytics</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> 1 Connected Social Profile</li>
+                                        <li class="text-slate-600"><i class="fa-solid fa-xmark text-slate-600 mr-2"></i> Advanced Growth Insights</li>
+                                    </ul>
+                                </div>
+                                <button onclick="openAuthModal('register')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all">Get Started Free</button>
+                            </div>
+                            <!-- Pro Plan -->
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col justify-between border-2 border-brand-500 relative shadow-2xl shadow-brand-500/10">
+                                <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">Most Popular</div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white mb-2">Pro Plan</h3>
+                                    <p class="text-slate-400 text-sm mb-6">For serious creators & influencers.</p>
+                                    <div class="text-4xl font-extrabold text-white mb-6">$29<span class="text-sm font-normal text-slate-400"> / month</span></div>
+                                    <ul class="space-y-3 text-sm text-slate-300 mb-8">
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Unlimited AI Captions & Hashtags</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Advanced Analytics & Charts</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Up to 5 Connected Profiles</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Content Calendar & Scheduler</li>
+                                    </ul>
+                                </div>
+                                <button onclick="openAuthModal('register')" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-brand-500/30 transition-all">Start Pro Trial</button>
+                            </div>
+                            <!-- Premium Plan -->
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col justify-between border border-slate-800">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white mb-2">Premium Agency</h3>
+                                    <p class="text-slate-400 text-sm mb-6">For agencies and fast-scaling brands.</p>
+                                    <div class="text-4xl font-extrabold text-white mb-6">$79<span class="text-sm font-normal text-slate-400"> / month</span></div>
+                                    <ul class="space-y-3 text-sm text-slate-300 mb-8">
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Everything in Pro Plan</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Unlimited Connected Profiles</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Priority Support & API Access</li>
+                                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Custom Team Member Seats</li>
+                                    </ul>
+                                </div>
+                                <button onclick="openAuthModal('register')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all">Get Premium</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section id="faq" class="py-24">
+                    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-16">
+                            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Frequently Asked <span class="gradient-text">Questions</span></h2>
+                            <p class="text-slate-400">Got questions? We have answers.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <details class="glass-panel p-6 rounded-2xl group cursor-pointer">
+                                <summary class="font-bold text-white flex justify-between items-center list-none">
+                                    <span>Is GrowthPulse safe for my social media accounts?</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <p class="text-slate-400 text-sm mt-4 leading-relaxed">Yes! GrowthPulse uses official authorized APIs and complies strictly with platform terms of service. We never ask for your social media passwords.</p>
+                            </details>
+                            <details class="glass-panel p-6 rounded-2xl group cursor-pointer">
+                                <summary class="font-bold text-white flex justify-between items-center list-none">
+                                    <span>Can I cancel my subscription at any time?</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <p class="text-slate-400 text-sm mt-4 leading-relaxed">Absolutely. You can instantly cancel, upgrade, or downgrade your plan directly from your dashboard billing settings with a single click.</p>
+                            </details>
+                            <details class="glass-panel p-6 rounded-2xl group cursor-pointer">
+                                <summary class="font-bold text-white flex justify-between items-center list-none">
+                                    <span>How do the AI caption and hashtag tools work?</span>
+                                    <i class="fa-solid fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <p class="text-slate-400 text-sm mt-4 leading-relaxed">Our AI models are trained on millions of viral posts to analyze your topic and generate engaging hooks, captions, and trending hashtags customized to your niche.</p>
+                            </details>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function initHomeInteractions() {
+            const ctx = document.getElementById('heroChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Follower Growth',
+                        data: [118000, 120500, 122100, 124000, 125800, 127100, 128450],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#22c55e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+        }
+
+        // --- STREAMING_CHUNK: User Dashboard View Renderer ---
+        function renderDashboardView() {
+            return `
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-800">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Welcome back, ${currentUser.name}! 👋</h1>
+                            <p class="text-slate-400 text-sm">Here is your social media growth performance overview.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="bg-brand-500/10 text-brand-400 border border-brand-500/20 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider">
+                                Plan: ${currentUser.plan}
+                            </span>
+                            ${currentUser.email === 'admin@growthpulse.io' ? `<button onclick="navigateTo('admin')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all">Admin Panel</button>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Tabs -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 text-sm font-semibold">
+                        <button onclick="switchDashboardTab('overview')" id="d-tab-overview" class="dashboard-tab px-5 py-2.5 rounded-xl bg-brand-500 text-white shadow-lg shadow-brand-500/25 transition-all whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i> Overview</button>
+                        <button onclick="switchDashboardTab('ai-studio')" id="d-tab-ai-studio" class="dashboard-tab px-5 py-2.5 rounded-xl bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> AI Caption Studio</button>
+                        <button onclick="switchDashboardTab('profile-analyzer')" id="d-tab-profile-analyzer" class="dashboard-tab px-5 py-2.5 rounded-xl bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap"><i class="fa-solid fa-magnifying-glass-chart mr-2"></i> Profile Analyzer</button>
+                        <button onclick="switchDashboardTab('calendar')" id="d-tab-calendar" class="dashboard-tab px-5 py-2.5 rounded-xl bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap"><i class="fa-solid fa-calendar-days mr-2"></i> Content Calendar</button>
+                        <button onclick="switchDashboardTab('subscription')" id="d-tab-subscription" class="dashboard-tab px-5 py-2.5 rounded-xl bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap"><i class="fa-solid fa-credit-card mr-2"></i> Subscription & Billing</button>
+                    </div>
+
+                    <!-- Dashboard Content Area -->
+                    <div id="dashboard-content-area">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            `;
+        }
+
+        function switchDashboardTab(tab) {
+            currentDashboardTab = tab;
+            document.querySelectorAll('.dashboard-tab').forEach(el => {
+                el.classList.remove('bg-brand-500', 'text-white', 'shadow-lg', 'shadow-brand-500/25');
+                el.classList.add('bg-slate-900', 'text-slate-400');
+            });
+            const activeBtn = document.getElementById(`d-tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-900', 'text-slate-400');
+                activeBtn.classList.add('bg-brand-500', 'text-white', 'shadow-lg', 'shadow-brand-500/25');
+            }
+            renderDashboardTabContent();
+        }
+
+        function renderDashboardTabContent() {
+            const area = document.getElementById('dashboard-content-area');
+            if (currentDashboardTab === 'overview') {
+                area.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Total Followers</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">128,450</h3>
+                            <p class="text-xs text-brand-400 mt-2 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +14.2% this month</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Engagement Rate</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">8.6%</h3>
+                            <p class="text-xs text-brand-400 mt-2 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +2.4% vs last week</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Profile Views</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">45,210</h3>
+                            <p class="text-xs text-brand-400 mt-2 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +8.9% overall</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">AI Credits Left</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">450 <span class="text-xs text-slate-500">/ 500</span></h3>
+                            <p class="text-xs text-amber-400 mt-2 font-semibold"><i class="fa-solid fa-bolt"></i> Refreshes in 12 days</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 glass-panel p-6 rounded-3xl">
+                            <h3 class="text-lg font-bold text-white mb-6">Audience Growth & Reach Analytics</h3>
+                            <div class="h-80"><canvas id="mainAnalyticsChart"></canvas></div>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-4">Connected Accounts</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl"><i class="fa-brands fa-instagram"></i></div>
+                                            <div>
+                                                <h4 class="text-sm font-bold text-white">@alexcreates</h4>
+                                                <p class="text-xs text-slate-400">92.4k followers</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs bg-brand-500/20 text-brand-400 px-2.5 py-1 rounded-full font-bold">Connected</span>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl"><i class="fa-brands fa-tiktok"></i></div>
+                                            <div>
+                                                <h4 class="text-sm font-bold text-white">@alex_tiktoks</h4>
+                                                <p class="text-xs text-slate-400">36.0k followers</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-xs bg-brand-500/20 text-brand-400 px-2.5 py-1 rounded-full font-bold">Connected</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="showToast('Account authorization popup simulated!', 'success')" class="w-full mt-6 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all border border-slate-700"><i class="fa-solid fa-plus mr-2"></i> Connect New Account</button>
+                        </div>
+                    </div>
+                `;
+                initDashboardCharts();
+            } else if (currentDashboardTab === 'ai-studio') {
+                area.innerHTML = `
+                    <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">AI Caption & Hashtag Generator</h3>
+                                <p class="text-slate-400 text-sm">Instantly generate viral captions and hashtags for your next post.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Post Topic or Description</label>
+                                <textarea id="ai-topic" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-100 focus:outline-none focus:border-brand-500 transition-colors" placeholder="e.g., Launching my new productivity planner for entrepreneurs..."></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Platform</label>
+                                    <select id="ai-platform" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-brand-500 transition-colors">
+                                        <option>Instagram Reels</option>
+                                        <option>TikTok Video</option>
+                                        <option>YouTube Shorts</option>
+                                        <option>LinkedIn Post</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tone of Voice</label>
+                                    <select id="ai-tone" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-brand-500 transition-colors">
+                                        <option>Engaging & Energetic</option>
+                                        <option>Professional & Authoritative</option>
+                                        <option>Casual & Relatable</option>
+                                        <option>Inspirational</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button onclick="generateAICaption()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all"><i class="fa-solid fa-sparkles mr-2"></i> Generate AI Caption</button>
+                        </div>
+                        <div id="ai-result-box" class="hidden mt-8 bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                            <h4 class="text-sm font-bold text-brand-400 uppercase tracking-wider mb-3">Generated AI Output</h4>
+                            <p id="ai-output-text" class="text-slate-200 text-sm leading-relaxed mb-4"></p>
+                            <button onclick="copyAICaption()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2 rounded-xl border border-slate-700 transition-all"><i class="fa-regular fa-copy mr-2"></i> Copy to Clipboard</button>
+                        </div>
+                    </div>
+                `;
+            } else if (currentDashboardTab === 'profile-analyzer') {
+                area.innerHTML = `
+                    <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Social Profile Deep Analyzer</h3>
+                                <p class="text-slate-400 text-sm">Analyze any public social profile to extract growth metrics & tips.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <input type="text" id="analyzer-handle" class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-brand-500" placeholder="@username or profile URL">
+                            <button onclick="runProfileAnalysis()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all">Analyze</button>
+                        </div>
+                        <div id="analyzer-results" class="hidden mt-8 space-y-6">
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">Est. Reach Score</p>
+                                    <h4 class="text-2xl font-bold text-brand-400 mt-1">94 / 100</h4>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">Post Frequency</p>
+                                    <h4 class="text-2xl font-bold text-white mt-1">1.4 / day</h4>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-400">Audience Quality</p>
+                                    <h4 class="text-2xl font-bold text-emerald-400 mt-1">A+</h4>
+                                </div>
+                            </div>
+                            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                                <h4 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-lightbulb text-amber-400 mr-2"></i> AI Recommendations</h4>
+                                <ul class="space-y-2 text-sm text-slate-300">
+                                    <li>• Increase Reel frequency on Tuesdays for +24% peak reach.</li>
+                                    <li>• Use stronger hook captions in the first 3 seconds of videos.</li>
+                                    <li>• Engage with comment replies within 15 minutes of posting.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentDashboardTab === 'calendar') {
+                area.innerHTML = `
+                    <div class="glass-panel p-8 rounded-3xl">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">Content Planner & Scheduler</h3>
+                                <p class="text-slate-400 text-sm">Organize and schedule your social media posts across all networks.</p>
+                            </div>
+                            <button onclick="showToast('New post modal opened!', 'success')" class="bg-brand-500 hover:bg-brand-600 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all"><i class="fa-solid fa-plus mr-2"></i> Schedule Post</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+                            ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => `
+                                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 min-h-[220px]">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-xs font-bold text-slate-300 uppercase">${day}</span>
+                                        <span class="text-[10px] text-slate-500">Oct ${12 + idx}</span>
+                                    </div>
+                                    <div class="space-y-3">
+                                        ${idx === 0 ? '<div class="bg-brand-500/10 border border-brand-500/30 p-3 rounded-xl text-xs"><p class="font-bold text-brand-400">Instagram Reel</p><p class="text-slate-400 mt-1">10:00 AM • 3 tips for SaaS</p></div>' : ''}
+                                        ${idx === 2 ? '<div class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-xs"><p class="font-bold text-cyan-400">TikTok Video</p><p class="text-slate-400 mt-1">02:30 PM • Behind the scenes</p></div>' : ''}
+                                        ${idx === 4 ? '<div class="bg-purple-500/10 border border-purple-500/30 p-3 rounded-xl text-xs"><p class="font-bold text-purple-400">YouTube Short</p><p class="text-slate-400 mt-1">06:00 PM • Full tutorial teaser</p></div>' : ''}
+                                        <div class="border border-dashed border-slate-800 p-2 rounded-xl text-center cursor-pointer hover:border-slate-700 transition-all" onclick="showToast('Click Schedule Post to add item', 'info')">
+                                            <i class="fa-solid fa-plus text-slate-600 text-xs"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (currentDashboardTab === 'subscription') {
+                area.innerHTML = `
+                    <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl">
+                        <h3 class="text-xl font-bold text-white mb-2">Subscription & Billing Management</h3>
+                        <p class="text-slate-400 text-sm mb-8">Manage your active plan, payment methods, and billing invoices.</p>
+                        
+                        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                            <div>
+                                <span class="text-xs text-slate-400 uppercase font-semibold">Current Active Plan</span>
+                                <h4 class="text-2xl font-extrabold text-white mt-1">${currentUser.plan} Plan</h4>
+                                <p class="text-xs text-brand-400 mt-1"><i class="fa-solid fa-circle-check"></i> Renews automatically on November 10, 2026</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="upgradePlan('Pro')" class="bg-brand-500 hover:bg-brand-600 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg transition-all">Upgrade to Pro</button>
+                                <button onclick="upgradePlan('Free')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-5 py-2.5 rounded-xl border border-slate-700 transition-all">Cancel Plan</button>
+                            </div>
+                        </div>
+
+                        <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Billing History</h4>
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+                            <div class="flex items-center justify-between p-4 border-b border-slate-800 text-xs font-semibold text-slate-400">
+                                <span>Invoice Date</span>
+                                <span>Amount</span>
+                                <span>Status</span>
+                                <span>Receipt</span>
+                            </div>
+                            <div class="flex items-center justify-between p-4 text-sm text-slate-300">
+                                <span>Oct 10, 2026</span>
+                                <span>$29.00</span>
+                                <span class="text-brand-400 font-semibold">Paid</span>
+                                <button onclick="showToast('Downloading invoice PDF...', 'success')" class="text-brand-400 hover:underline"><i class="fa-solid fa-download"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function initDashboardCharts() {
+            const ctx = document.getElementById('mainAnalyticsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Oct 1', 'Oct 3', 'Oct 5', 'Oct 7', 'Oct 9'],
+                    datasets: [{
+                        label: 'Engagement Score',
+                        data: [72, 78, 85, 81, 92],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    }, {
+                        label: 'Reach (Thousands)',
+                        data: [45, 52, 60, 58, 74],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+        }
+
+        function generateAICaption() {
+            const topic = document.getElementById('ai-topic').value;
+            const platform = document.getElementById('ai-platform').value;
+            const tone = document.getElementById('ai-tone').value;
+
+            if (!topic) {
+                showToast('Please enter a post topic or description', 'error');
+                return;
+            }
+
+            showToast('Generating AI caption...', 'info');
+            setTimeout(() => {
+                const resultBox = document.getElementById('ai-result-box');
+                const outputText = document.getElementById('ai-output-text');
+                resultBox.classList.remove('hidden');
+                
+                outputText.innerHTML = `🚀 <b>Hook:</b> Want to know the secret behind scaling on ${platform} overnight?<br><br>
+                ${topic} — Here are 3 proven strategies that helped our community hit record growth this month! Save this post and let us know your favorite tip below. 👇<br><br>
+                #GrowthPulse #SocialMediaTips #CreatorEconomy #ViralGrowth #EntrepreneurLife`;
+                
+                showToast('AI caption generated successfully!', 'success');
+            }, 800);
+        }
+
+        function copyAICaption() {
+            const text = document.getElementById('ai-output-text').innerText;
+            document.execCommand('copy');
+            showToast('Caption copied to clipboard!', 'success');
+        }
+
+        function runProfileAnalysis() {
+            const handle = document.getElementById('analyzer-handle').value;
+            if (!handle) {
+                showToast('Please enter a username or profile URL', 'error');
+                return;
+            }
+            showToast(`Analyzing profile ${handle}...`, 'info');
+            setTimeout(() => {
+                document.getElementById('analyzer-results').classList.remove('hidden');
+                showToast('Analysis completed successfully!', 'success');
+            }, 1000);
+        }
+
+        function upgradePlan(newPlan) {
+            currentUser.plan = newPlan;
+            localStorage.setItem('gp_user', JSON.stringify(currentUser));
+            updateNavbarState();
+            showToast(`Successfully updated subscription to ${newPlan}!`, 'success');
+            renderDashboardTabContent();
+        }
+
+        // --- STREAMING_CHUNK: Admin Dashboard View Renderer ---
+        function renderAdminView() {
+            return `
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-800">
+                        <div>
+                            <h1 class="text-3xl font-extrabold text-white"><i class="fa-solid fa-shield-halved text-brand-400 mr-3"></i> Admin Control Center</h1>
+                            <p class="text-slate-400 text-sm">Protected staff area to manage platform users, subscriptions, and metrics.</p>
+                        </div>
+                        <button onclick="navigateTo('dashboard')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition-all">Back to User Dashboard</button>
+                    </div>
+
+                    <!-- Admin Metric Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Total Registered Users</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">${adminUsers.length + 1240}</h3>
+                            <p class="text-xs text-brand-400 mt-2 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +18% this month</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Active Subscriptions</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">842</h3>
+                            <p class="text-xs text-brand-400 mt-2 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +12 new today</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Monthly Recurring Revenue</p>
+                            <h3 class="text-3xl font-extrabold text-white mt-2">$24,450</h3>
+                            <p class="text-xs text-brand-400 mt-2 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +15.4% growth</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-3xl">
+                            <p class="text-xs text-slate-400 font-semibold uppercase">System Error Rate</p>
+                            <h3 class="text-3xl font-extrabold text-emerald-400 mt-2">0.01%</h3>
+                            <p class="text-xs text-emerald-400 mt-2 font-semibold"><i class="fa-solid fa-circle-check"></i> All systems operational</p>
+                        </div>
+                    </div>
+
+                    <!-- User Management Table -->
+                    <div class="glass-panel rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-white">Platform User Management</h3>
+                            <button onclick="showToast('Add user modal opened', 'info')" class="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"><i class="fa-solid fa-plus mr-1"></i> Add User</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="border-b border-slate-800 text-xs uppercase text-slate-400">
+                                    <tr>
+                                        <th class="py-3 px-4">User Name</th>
+                                        <th class="py-3 px-4">Email</th>
+                                        <th class="py-3 px-4">Plan</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4">Joined Date</th>
+                                        <th class="py-3 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60">
+                                    ${adminUsers.map(u => `
+                                        <tr>
+                                            <td class="py-4 px-4 font-bold text-white">${u.name}</td>
+                                            <td class="py-4 px-4 text-slate-400">${u.email}</td>
+                                            <td class="py-4 px-4"><span class="bg-brand-500/10 text-brand-400 px-2.5 py-1 rounded-full text-xs font-bold">${u.plan}</span></td>
+                                            <td class="py-4 px-4"><span class="text-emerald-400 text-xs font-semibold"><i class="fa-solid fa-circle text-[8px] mr-1"></i> ${u.status}</span></td>
+                                            <td class="py-4 px-4 text-slate-400">${u.joined}</td>
+                                            <td class="py-4 px-4 text-right">
+                                                <button onclick="showToast('User settings updated', 'success')" class="text-slate-400 hover:text-white px-2 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button onclick="showToast('User account suspended', 'info')" class="text-slate-400 hover:text-rose-400 px-2 py-1"><i class="fa-solid fa-ban"></i></button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initAdminInteractions() {}
+
+        // --- Initial Load ---
+        window.onload = function() {
+            updateNavbarState();
+            navigateTo('home');
+        };
+    </script>
+</body>
+</html>
